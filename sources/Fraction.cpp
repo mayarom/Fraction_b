@@ -9,7 +9,10 @@ using namespace ariel;
 
 int MAXINT = std::numeric_limits<int>::max();
 int MININT = std::numeric_limits<int>::min();
-
+void Fraction::log(const std::string &message)
+{
+    std::cout << "[Fraction]: " << message << std::endl;
+}
 /********** Constructors and destructors **********/
 
 /**
@@ -31,7 +34,7 @@ Fraction::Fraction(int input_numerator, int input_denominator)
     {
         throw std::overflow_error("Overflow");
     }
-
+    log("Creating fraction from int numerator and denominator");
     reduce(input_numerator, input_denominator);
     numerator = input_numerator;
     denominator = input_denominator;
@@ -49,6 +52,7 @@ Fraction::Fraction(double value)
     {
         throw std::overflow_error("Overflow");
     }
+    log("Creating fraction from double value");
     numerator = value * FACTOR;
     denominator = FACTOR;
     reduce(numerator, denominator);
@@ -66,6 +70,7 @@ Fraction::Fraction(float value)
     {
         throw std::overflow_error("Overflow");
     }
+    log("Creating fraction from float value");
     numerator = value * FACTOR;
     denominator = FACTOR;
     reduce(numerator, denominator);
@@ -87,6 +92,7 @@ Fraction::Fraction(const Fraction &other)
     {
         throw std::overflow_error("Overflow");
     }
+    log("Creating fraction from copy constructor");
     numerator = other.getNumerator();
     denominator = other.getDenominator();
 };
@@ -108,6 +114,7 @@ Fraction::Fraction()
     {
         throw std::invalid_argument("Denominator can't be zero");
     }
+    log("Creating fraction from default constructor");
     numerator = 0;
     denominator = 1;
 };
@@ -120,6 +127,7 @@ Fraction::Fraction()
 Fraction::Fraction(Fraction &&other) noexcept
 {
 
+    log("Creating fraction from move constructor");
     numerator = other.getNumerator();
     denominator = other.getDenominator();
 };
@@ -129,10 +137,12 @@ Fraction &Fraction::operator=(Fraction &&other) noexcept
 {
     if (this == &other)
     {
+        log("Move assignment operator called on itself");
         return *this;
     }
     numerator = other.getNumerator();
     denominator = other.getDenominator();
+    log("Move assignment operator called");
     return *this;
 };
 
@@ -140,6 +150,7 @@ Fraction &Fraction::operator=(const Fraction &other)
 {
     if (this == &other)
     {
+        log("Copy assignment operator called on itself");
         return *this;
     }
     // error handling for overflow
@@ -147,6 +158,7 @@ Fraction &Fraction::operator=(const Fraction &other)
     {
         throw std::overflow_error("Overflow");
     }
+    log("Copy assignment operator called");
     numerator = other.getNumerator();
     denominator = other.getDenominator();
     return *this;
@@ -160,6 +172,7 @@ Fraction &Fraction::operator=(float other)
     // error handling for overflow
     if (numerator > MAXINT || numerator < MININT || denominator > MAXINT || denominator < MININT)
     {
+        log("Overflow error");
         throw std::overflow_error("Overflow");
     }
     return *this;
@@ -178,6 +191,7 @@ Fraction Fraction::operator+(const Fraction &other) const
     {
         error_overflow();
     }
+
     return Fraction(num, denom);
 };
 
@@ -187,6 +201,7 @@ Fraction Fraction::operator+(float other)
     tmp = round(tmp * FACTOR) / FACTOR;
     float tmp2 = round(other * FACTOR) / FACTOR;
     float tmp3 = round((tmp + tmp2) * FACTOR) / FACTOR;
+    log("Addition operator called");
     return Fraction(tmp3);
 }
 
@@ -198,6 +213,7 @@ Fraction Fraction::operator+=(const Fraction &other)
 
 Fraction Fraction::operator+=(float other)
 {
+    log("Addition assignment operator called");
     *this = *this + other;
     return *this;
 };
@@ -220,6 +236,7 @@ const Fraction Fraction::operator++(int)
 // ********** Operators for subtraction (-) **********
 Fraction Fraction::operator-(const Fraction &other) const
 {
+
     long long int num = static_cast<long long int>(numerator) * static_cast<long long int>(other.denominator) -
                         static_cast<long long int>(other.numerator) * static_cast<long long int>(denominator);
 
@@ -229,6 +246,7 @@ Fraction Fraction::operator-(const Fraction &other) const
     {
         throw std::overflow_error("Overflow error");
     }
+
     return Fraction(num, denom);
 };
 
@@ -251,6 +269,7 @@ Fraction Fraction::operator-=(const Fraction &other)
 {
     *this = *this - other;
     return *this;
+    log("Subtraction assignment operator called");
 };
 
 /**
@@ -261,6 +280,7 @@ Fraction Fraction::operator-=(const Fraction &other)
  */
 Fraction Fraction::operator-=(float other)
 {
+    log("Subtraction assignment operator called");
     *this = *this - other;
     return *this;
 };
@@ -272,6 +292,7 @@ Fraction Fraction::operator-=(float other)
  */
 Fraction &Fraction::operator--()
 {
+    log("Pre-decrement operator called");
     numerator -= denominator;
     reduce(numerator, denominator);
     return *this;
@@ -353,8 +374,10 @@ Fraction Fraction::operator/(const Fraction &other) const
 
     if (num > MAXINT || num < MININT || denom > MAXINT || denom < MININT)
     {
+
         error_overflow();
     }
+
     return Fraction(num, denom);
 };
 
@@ -435,6 +458,7 @@ bool Fraction::operator>(const Fraction &other) const
     {
         return false;
     }
+
     float otherVal = other.to_float();
     return (val > otherVal);
 }
@@ -552,5 +576,6 @@ bool Fraction::operator<=(float other)
  */
 Fraction::operator std::string() const
 {
+
     return std::to_string(numerator) + "/" + std::to_string(denominator);
 }

@@ -1,3 +1,14 @@
+
+/*The Fraction Calculator Library is an efficient and comprehensive C++ library designed to perform arithmetic
+and comparison operations on fractions. This library simplifies the process of working with fractions by
+providing a user-friendly Fraction class that encapsulates a fraction as a numerator and a denominator. This
+versatile class allows users to create Fraction objects using integer, float, or double values, and supports
+copy or move constructors for seamless manipulation.
+
+Author: Maya Rom
+ID: 207485251
+*/
+
 #ifndef FRACTION_HPP
 #define FRACTION_HPP
 
@@ -19,47 +30,50 @@ namespace ariel
     class Fraction
     {
     private:
-        int numerator;
-        int denominator;
+        // Private methods - used by the class only
+        int numerator;                        // The numerator of the fraction - always positive
+        bool is_negative;                     // Is the fraction negative - true if negative, false if positive
+        int denominator;                      // The denominator of the fraction - always positive
+        void log(const std::string &message); // Prints a message to the console
 
     public:
-        // Constructors and destructor
-        Fraction(int numerator, int denominator);
-        Fraction(float numerator);
-        Fraction(double numerator);
-        Fraction(Fraction const &other);
-        Fraction();
-        Fraction(Fraction &&other) noexcept; // move constructor
-        ~Fraction() = default;
+        // Constructors and destructor - used by the user
+        Fraction(int numerator, int denominator); // int constructor
+        Fraction(float numerator);                // float constructor
+        Fraction(double numerator);               // double constructor
+        Fraction(Fraction const &other);          // copy constructor
+        Fraction();                               // default constructor
+        Fraction(Fraction &&other) noexcept;      // move constructor
+        ~Fraction() = default;                    // destructor
 
         // Operators for equality (=)
         Fraction &operator=(Fraction &&other) noexcept; // move assignment operator
-        Fraction &operator=(const Fraction &other);
-        Fraction &operator=(float other);
+        Fraction &operator=(const Fraction &other);     // copy assignment operator
+        Fraction &operator=(float other);               // float assignment operator
 
         // Operators for addition (+)
-        Fraction operator+(const Fraction &other) const;
-        Fraction operator+(float other);
-        Fraction operator+=(const Fraction &other);
-        Fraction operator+=(float other);
-        Fraction &operator++();
-        const Fraction operator++(int);
-        friend Fraction operator+(float other, const Fraction &fraction)
+        Fraction operator+(const Fraction &other) const;                 // Fraction addition operator
+        Fraction operator+(float other);                                 // float addition operator
+        Fraction operator+=(const Fraction &other);                      // Fraction addition assignment operator
+        Fraction operator+=(float other);                                // float addition assignment operator
+        Fraction &operator++();                                          // Fraction prefix increment operator
+        const Fraction operator++(int);                                  // Fraction postfix increment operator
+        friend Fraction operator+(float other, const Fraction &fraction) // float + Fraction operator
         {
-            float tmp1 = round(other * FACTOR) / FACTOR;
-            float tmp2 = round(fraction.to_float() * FACTOR) / FACTOR;
-            Fraction tmp(tmp1 + tmp2);
+            float tmp1 = round(other * FACTOR) / FACTOR;               // round to 3 digits after the decimal point
+            float tmp2 = round(fraction.to_float() * FACTOR) / FACTOR; // round to 3 digits after the decimal point
+            Fraction tmp(tmp1 + tmp2);                                 // create a new Fraction object
             return tmp;
         }
 
         // Operators for subtraction (-)
-        Fraction operator-(const Fraction &other) const;
-        Fraction operator-(float other);
-        Fraction operator-=(const Fraction &other);
-        Fraction operator-=(float other);
-        Fraction &operator--();
-        const Fraction operator--(int);
-        friend Fraction operator-(float other, const Fraction &fraction)
+        Fraction operator-(const Fraction &other) const;                 // Fraction subtraction operator
+        Fraction operator-(float other);                                 // float subtraction operator
+        Fraction operator-=(const Fraction &other);                      // Fraction subtraction assignment operator
+        Fraction operator-=(float other);                                // float subtraction assignment operator
+        Fraction &operator--();                                          // Fraction prefix decrement operator
+        const Fraction operator--(int);                                  // Fraction postfix decrement operator
+        friend Fraction operator-(float other, const Fraction &fraction) // float - Fraction operator
         {
             float tmp1 = round(other * FACTOR) / FACTOR;
             float tmp2 = round(fraction.to_float() * FACTOR) / FACTOR;
@@ -118,6 +132,10 @@ namespace ariel
         bool operator>(float other);
         friend bool operator>(float other, const Fraction &fraction)
         {
+            if (fraction.to_float() == 0)
+            {
+                error_zero();
+            }
             return other > fraction.to_float();
         }
 
@@ -125,6 +143,10 @@ namespace ariel
         bool operator<(float other);
         friend bool operator<(float other, const Fraction &fraction)
         {
+            if (fraction.to_float() == 0)
+            {
+                error_zero();
+            }
             return other < fraction.to_float();
         }
 
@@ -132,6 +154,10 @@ namespace ariel
         bool operator>=(float other);
         friend bool operator>=(float other, const Fraction &fraction)
         {
+            if (fraction.to_float() == 0)
+            {
+                error_zero();
+            }
             return other >= fraction.to_float();
         }
 
@@ -149,11 +175,19 @@ namespace ariel
         // Getters
         int getNumerator() const
         {
+            if (denominator == 0)
+            {
+                error_zero();
+            }
             return numerator;
         }
 
         int getDenominator() const
         {
+            if (denominator == 0)
+            {
+                error_zero();
+            }
             return denominator;
         }
         // To string
@@ -247,10 +281,16 @@ namespace ariel
 
         float to_float() const
         {
-
+            if (denominator == 0)
+            {
+                error_zero();
+            }
             return static_cast<float>(numerator) / static_cast<float>(denominator);
         }
     };
+}
 
 #endif
-}
+
+
+
