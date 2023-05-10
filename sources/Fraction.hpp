@@ -44,7 +44,7 @@ namespace ariel
         Fraction(Fraction const &other);          // copy constructor
         Fraction();                               // default constructor
         Fraction(Fraction &&other) noexcept;      // move constructor
-        ~Fraction() = default;                    // destructor
+        ~Fraction() = default;
 
         // Operators for equality (=)
         Fraction &operator=(Fraction &&other) noexcept; // move assignment operator
@@ -80,6 +80,11 @@ namespace ariel
             Fraction tmp(tmp1 - tmp2);
             return tmp;
         }
+
+        // time func
+        long long int get_time();
+        long long int get_time_micro();
+        void print_message(std::string message);
 
         // Operators for multiplication (*)
         Fraction operator*(const Fraction &other) const;
@@ -193,6 +198,27 @@ namespace ariel
         // To string
         operator std::string() const;
 
+
+        // To double
+        double to_double() const
+        {
+            if (denominator == 0)
+            {
+                error_zero();
+            }
+            return (double)numerator / (double)denominator;
+        }
+        // To int
+        int to_int() const
+        {
+
+            if (denominator == 0)
+            {
+                error_zero();
+            }
+            return numerator / denominator;
+        }
+
         // Stream operators
         friend std::ostream &operator<<(std::ostream &ostrm, const Fraction &fraction)
         {
@@ -291,6 +317,3 @@ namespace ariel
 }
 
 #endif
-
-
-
