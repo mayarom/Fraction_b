@@ -26,6 +26,11 @@ Fraction::Fraction(int input_numerator, int input_denominator)
     {
         throw std::invalid_argument("Denominator can't be zero");
     }
+    // error handling for overflow
+    if (input_numerator > MAXINT || input_numerator < MININT || input_denominator > MAXINT || input_denominator < MININT)
+    {
+        throw std::overflow_error("Overflow");
+    }
 
     reduce(input_numerator, input_denominator);
     numerator = input_numerator;
@@ -39,6 +44,11 @@ Fraction::Fraction(int input_numerator, int input_denominator)
  */
 Fraction::Fraction(double value)
 {
+    // error handling for overflow
+    if (value > MAXINT || value < MININT)
+    {
+        throw std::overflow_error("Overflow");
+    }
     numerator = value * devider;
     denominator = devider;
     reduce(numerator, denominator);
@@ -51,6 +61,11 @@ Fraction::Fraction(double value)
  */
 Fraction::Fraction(float value)
 {
+    // error handling for overflow
+    if (value > MAXINT || value < MININT)
+    {
+        throw std::overflow_error("Overflow");
+    }
     numerator = value * devider;
     denominator = devider;
     reduce(numerator, denominator);
@@ -67,6 +82,11 @@ Fraction::Fraction(const Fraction &other)
     {
         return;
     }
+    // error handling for overflow
+    if (other.getNumerator() > MAXINT || other.getNumerator() < MININT || other.getDenominator() > MAXINT || other.getDenominator() < MININT)
+    {
+        throw std::overflow_error("Overflow");
+    }
     numerator = other.getNumerator();
     denominator = other.getDenominator();
 };
@@ -78,6 +98,16 @@ Fraction::Fraction(const Fraction &other)
  */
 Fraction::Fraction()
 {
+    // error handling for overflow
+    if (0 > MAXINT || 0 < MININT || 1 > MAXINT || 1 < MININT)
+    {
+        throw std::overflow_error("Overflow");
+    }
+    // error handling for zero division
+    if (1 == 0)
+    {
+        throw std::invalid_argument("Denominator can't be zero");
+    }
     numerator = 0;
     denominator = 1;
 };
@@ -89,10 +119,7 @@ Fraction::Fraction()
  */
 Fraction::Fraction(Fraction &&other) noexcept
 {
-    if (this == &other)
-    {
-        return;
-    }
+
     numerator = other.getNumerator();
     denominator = other.getDenominator();
 };
@@ -115,6 +142,11 @@ Fraction &Fraction::operator=(const Fraction &other)
     {
         return *this;
     }
+    // error handling for overflow
+    if (other.getNumerator() > MAXINT || other.getNumerator() < MININT || other.getDenominator() > MAXINT || other.getDenominator() < MININT)
+    {
+        throw std::overflow_error("Overflow");
+    }
     numerator = other.getNumerator();
     denominator = other.getDenominator();
     return *this;
@@ -125,13 +157,18 @@ Fraction &Fraction::operator=(float other)
     Fraction tmp = Fraction(other);
     numerator = tmp.getNumerator();
     denominator = tmp.getDenominator();
-
+    // error handling for overflow
+    if (numerator > MAXINT || numerator < MININT || denominator > MAXINT || denominator < MININT)
+    {
+        throw std::overflow_error("Overflow");
+    }
     return *this;
 };
 
 // ********** Operators for addition (+) **********
 Fraction Fraction::operator+(const Fraction &other) const
 {
+    
     long long int num = static_cast<long long int>(numerator) * static_cast<long long int>(other.denominator) +
                         static_cast<long long int>(other.numerator) * static_cast<long long int>(denominator);
 
@@ -333,6 +370,10 @@ bool Fraction::operator!=(const Fraction &other) const
 
 bool Fraction::operator!=(float other)
 {
+    if (other == 0)
+    {
+        throw std::runtime_error("Can't divide by zero");
+    }
     return !(*this == other);
 };
 
@@ -407,6 +448,11 @@ bool Fraction::operator>=(const Fraction &other) const
  */
 bool Fraction::operator>=(float other)
 {
+    if (denominator == 0)
+    {
+        throw std::runtime_error("Division by zero in comparison");
+    }
+
     float val = to_float();
     return (val >= other);
 }
@@ -419,6 +465,11 @@ bool Fraction::operator>=(float other)
  */
 bool Fraction::operator<=(const Fraction &other) const
 {
+    if (denominator == 0 || other.denominator == 0)
+    {
+        throw std::runtime_error("Division by zero in comparison");
+    }
+
     float val = to_float();
     float otherVal = other.to_float();
     return (val <= otherVal);
@@ -432,6 +483,11 @@ bool Fraction::operator<=(const Fraction &other) const
  */
 bool Fraction::operator<=(float other)
 {
+    if (denominator == 0)
+    {
+        throw std::runtime_error("Division by zero in comparison");
+    }
+
     float val = to_float();
     return (val <= other);
 }
@@ -443,5 +499,5 @@ bool Fraction::operator<=(float other)
  */
 Fraction::operator std::string() const
 {
-    return to_string(numerator) + "/" + to_string(denominator);
+    return std::to_string(numerator) + "/" + std::to_string(denominator);
 }

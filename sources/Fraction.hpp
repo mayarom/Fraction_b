@@ -1,20 +1,19 @@
 #ifndef FRACTION_HPP
 #define FRACTION_HPP
 
-#include <stdbool.h>
-#include <iostream>
-#include <string>
-#include <math.h>
-#include <stdexcept>
-#include <unistd.h>
-#include <numeric>
-#include <limits>
 #include <algorithm>
+#include <iostream>
+#include <limits>
+#include <math.h>
+#include <numeric>
+#include <stdexcept>
+#include <string>
+#include <unistd.h>
 
 using namespace std;
+
 namespace ariel
 {
-
     float const devider = 1000;
 
     class Fraction
@@ -32,10 +31,9 @@ namespace ariel
         Fraction();
         Fraction(Fraction &&other) noexcept; // move constructor
 
-
         ~Fraction() = default;
 
-        // Operators for equlity (=)
+        // Operators for equality (=)
         Fraction &operator=(Fraction &&other) noexcept; // move assignment operator
         Fraction &operator=(const Fraction &other);
         Fraction &operator=(float other);
@@ -92,8 +90,21 @@ namespace ariel
             {
                 throw std::runtime_error("Can't divide by zero");
             }
+            
+                
             Fraction tmp(other);
             return tmp / fraction;
+        }
+
+        // Getters
+        int getNumerator() const
+        {
+            return numerator;
+        }
+
+        int getDenominator() const
+        {
+            return denominator;
         }
 
         // Operators for equality-checking (==, !=)
@@ -108,6 +119,10 @@ namespace ariel
         bool operator!=(float other);
         friend bool operator!=(float other, const Fraction &fraction)
         {
+            if (fraction.to_float() == 0)
+            {
+                throw std::runtime_error("Can't divide by zero");
+            }
             return other != fraction.to_float();
         }
 
@@ -137,21 +152,29 @@ namespace ariel
         bool operator<=(float other);
         friend bool operator<=(float other, const Fraction &fraction)
         {
+            if (fraction.to_float() == 0)
+            {
+                throw std::runtime_error("Can't divide by zero");
+            }
             return other <= fraction.to_float();
         }
-
         // To string
         operator std::string() const;
 
         // Stream operators
         friend std::ostream &operator<<(std::ostream &ostrm, const Fraction &fraction)
         {
+            if (fraction.getDenominator() == 0)
+            {
+                throw std::runtime_error("Can't divide by zero");
+            }
             int num = fraction.getNumerator();
             int denom = fraction.getDenominator();
-            if (num > 0 && denom < 0 || num < 0 && denom < 0)
+
+            if (denom < 0)
             {
-                num *= -1;
-                denom *= -1;
+                num = -num;
+                denom = -denom;
             }
 
             ostrm << num << "/" << denom;
@@ -188,54 +211,35 @@ namespace ariel
             return istrm;
         }
 
-        // Getters
-        int getNumerator() const
-        {
-            return numerator;
-        }
-
-        int getDenominator() const
-        {
-            return denominator;
-        }
-
         // Other methods
-
         static void reduce(int &numerator, int &denominator)
         {
+            if (denominator == 0)
+            {
+                throw std::runtime_error("Can't divide by zero");
+            }
+            
             bool nflag = numerator < 0;
             bool dflag = denominator < 0;
 
-            if (nflag)
-            {
-                numerator *= -1;
-            }
-            if (dflag)
-            {
-                denominator *= -1;
-            }
+            numerator *= (nflag) ? -1 : 1;
+            denominator *= (dflag) ? -1 : 1;
 
             int gcd = std::__gcd(numerator, denominator);
 
             numerator /= gcd;
             denominator /= gcd;
 
-            if (nflag)
-            {
-                numerator *= -1;
-            }
-            if (dflag)
-            {
-                denominator *= -1;
-            }
+            numerator *= (nflag) ? -1 : 1;
+            denominator *= (dflag) ? -1 : 1;
         }
 
         float to_float() const
         {
+            
             return static_cast<float>(numerator) / static_cast<float>(denominator);
         }
     };
 
-}
-
 #endif
+}
