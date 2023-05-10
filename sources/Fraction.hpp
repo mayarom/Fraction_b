@@ -14,7 +14,7 @@ using namespace std;
 
 namespace ariel
 {
-    float const devider = 1000;
+    float const FACTOR = 1000;
 
     class Fraction
     {
@@ -23,14 +23,13 @@ namespace ariel
         int denominator;
 
     public:
-        // Constructors and destructors
+        // Constructors and destructor
         Fraction(int numerator, int denominator);
         Fraction(float numerator);
         Fraction(double numerator);
         Fraction(Fraction const &other);
         Fraction();
         Fraction(Fraction &&other) noexcept; // move constructor
-
         ~Fraction() = default;
 
         // Operators for equality (=)
@@ -47,8 +46,8 @@ namespace ariel
         const Fraction operator++(int);
         friend Fraction operator+(float other, const Fraction &fraction)
         {
-            float tmp1 = round(other * devider) / devider;
-            float tmp2 = round(fraction.to_float() * devider) / devider;
+            float tmp1 = round(other * FACTOR) / FACTOR;
+            float tmp2 = round(fraction.to_float() * FACTOR) / FACTOR;
             Fraction tmp(tmp1 + tmp2);
             return tmp;
         }
@@ -62,8 +61,8 @@ namespace ariel
         const Fraction operator--(int);
         friend Fraction operator-(float other, const Fraction &fraction)
         {
-            float tmp1 = round(other * devider) / devider;
-            float tmp2 = round(fraction.to_float() * devider) / devider;
+            float tmp1 = round(other * FACTOR) / FACTOR;
+            float tmp2 = round(fraction.to_float() * FACTOR) / FACTOR;
             Fraction tmp(tmp1 - tmp2);
             return tmp;
         }
@@ -88,23 +87,11 @@ namespace ariel
         {
             if (fraction.to_float() == 0)
             {
-                throw std::runtime_error("Can't divide by zero");
+                error_zero();
             }
-            
-                
+
             Fraction tmp(other);
             return tmp / fraction;
-        }
-
-        // Getters
-        int getNumerator() const
-        {
-            return numerator;
-        }
-
-        int getDenominator() const
-        {
-            return denominator;
         }
 
         // Operators for equality-checking (==, !=)
@@ -121,7 +108,7 @@ namespace ariel
         {
             if (fraction.to_float() == 0)
             {
-                throw std::runtime_error("Can't divide by zero");
+                error_zero();
             }
             return other != fraction.to_float();
         }
@@ -154,9 +141,20 @@ namespace ariel
         {
             if (fraction.to_float() == 0)
             {
-                throw std::runtime_error("Can't divide by zero");
+                error_zero();
             }
             return other <= fraction.to_float();
+        }
+
+        // Getters
+        int getNumerator() const
+        {
+            return numerator;
+        }
+
+        int getDenominator() const
+        {
+            return denominator;
         }
         // To string
         operator std::string() const;
@@ -166,7 +164,7 @@ namespace ariel
         {
             if (fraction.getDenominator() == 0)
             {
-                throw std::runtime_error("Can't divide by zero");
+                error_zero();
             }
             int num = fraction.getNumerator();
             int denom = fraction.getDenominator();
@@ -189,14 +187,14 @@ namespace ariel
             istrm >> numerator;
             if (istrm.fail() || denominator == 0)
             {
-                throw std::runtime_error("Invalid input");
+                error_invalid();
             }
             if (istrm.peek() == '/')
             {
                 istrm >> slash >> denominator;
                 if (istrm.fail() || denominator == 0)
                 {
-                    throw std::runtime_error("Invalid input");
+                    error_invalid();
                 }
             }
             else
@@ -204,7 +202,7 @@ namespace ariel
                 istrm >> denominator;
                 if (istrm.fail() || denominator == 0)
                 {
-                    throw std::runtime_error("Invalid input");
+                    error_invalid();
                 }
             }
             fraction = Fraction(numerator, denominator);
@@ -216,9 +214,9 @@ namespace ariel
         {
             if (denominator == 0)
             {
-                throw std::runtime_error("Can't divide by zero");
+                error_zero();
             }
-            
+
             bool nflag = numerator < 0;
             bool dflag = denominator < 0;
 
@@ -233,10 +231,23 @@ namespace ariel
             numerator *= (nflag) ? -1 : 1;
             denominator *= (dflag) ? -1 : 1;
         }
+        //"CANT DIVIDE BY ZERO" EXCEPTION
+        static void error_zero()
+        {
+            throw std::runtime_error("Can't divide by zero");
+        }
+        static void error_invalid()
+        {
+            throw std::runtime_error("Invalid input");
+        }
+        static void error_overflow()
+        {
+            throw std::overflow_error("Overflow");
+        }
 
         float to_float() const
         {
-            
+
             return static_cast<float>(numerator) / static_cast<float>(denominator);
         }
     };
