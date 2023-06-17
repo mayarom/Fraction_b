@@ -20,6 +20,7 @@ ID: 207485251
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
+#include <chrono>
 
 using namespace std;
 
@@ -52,17 +53,19 @@ namespace ariel
         Fraction &operator=(float other);               // float assignment operator
 
         // Operators for addition (+)
-        Fraction operator+(const Fraction &other) const;                 // Fraction addition operator
-        Fraction operator+(float other);                                 // float addition operator
-        Fraction operator+=(const Fraction &other);                      // Fraction addition assignment operator
-        Fraction operator+=(float other);                                // float addition assignment operator
-        Fraction &operator++();                                          // Fraction prefix increment operator
-        const Fraction operator++(int);                                  // Fraction postfix increment operator
-        friend Fraction operator+(float other, const Fraction &fraction) // float + Fraction operator
+        Fraction operator+(const Fraction &other) const; // Fraction addition operator
+        Fraction operator+(float other);                 // float addition operator
+        Fraction operator+=(const Fraction &other);      // Fraction addition assignment operator
+        Fraction operator+=(float other);                // float addition assignment operator
+        Fraction &operator++();                          // Fraction prefix increment operator
+        const Fraction operator++(int);                  // Fraction postfix increment operator
+                                                         // Declaration of friend function
+
+        friend Fraction operator+(float other, const Fraction &fraction)
         {
-            float tmp1 = round(other * FACTOR) / FACTOR;               // round to 3 digits after the decimal point
-            float tmp2 = round(fraction.to_float() * FACTOR) / FACTOR; // round to 3 digits after the decimal point
-            Fraction tmp(tmp1 + tmp2);                                 // create a new Fraction object
+            float tmp1 = round(other * FACTOR) / FACTOR;
+            float tmp2 = round(fraction.to_float() * FACTOR) / FACTOR;
+            Fraction tmp(tmp1 + tmp2);
             return tmp;
         }
 
@@ -178,46 +181,14 @@ namespace ariel
         }
 
         // Getters
-        int getNumerator() const
-        {
-            if (denominator == 0)
-            {
-                error_zero();
-            }
-            return numerator;
-        }
-
-        int getDenominator() const
-        {
-            if (denominator == 0)
-            {
-                error_zero();
-            }
-            return denominator;
-        }
+        int getNumerator() const;
+        int getDenominator() const;
         // To string
         operator std::string() const;
-
-
         // To double
-        double to_double() const
-        {
-            if (denominator == 0)
-            {
-                error_zero();
-            }
-            return (double)numerator / (double)denominator;
-        }
+        double to_double() const;
         // To int
-        int to_int() const
-        {
-
-            if (denominator == 0)
-            {
-                error_zero();
-            }
-            return numerator / denominator;
-        }
+        int to_int() const;
 
         // Stream operators
         friend std::ostream &operator<<(std::ostream &ostrm, const Fraction &fraction)
@@ -270,49 +241,11 @@ namespace ariel
         }
 
         // Other methods
-        static void reduce(int &numerator, int &denominator)
-        {
-            if (denominator == 0)
-            {
-                error_zero();
-            }
-
-            bool nflag = numerator < 0;
-            bool dflag = denominator < 0;
-
-            numerator *= (nflag) ? -1 : 1;
-            denominator *= (dflag) ? -1 : 1;
-
-            int gcd = std::__gcd(numerator, denominator);
-
-            numerator /= gcd;
-            denominator /= gcd;
-
-            numerator *= (nflag) ? -1 : 1;
-            denominator *= (dflag) ? -1 : 1;
-        }
-        //"CANT DIVIDE BY ZERO" EXCEPTION
-        static void error_zero()
-        {
-            throw std::runtime_error("Can't divide by zero");
-        }
-        static void error_invalid()
-        {
-            throw std::runtime_error("Invalid input");
-        }
-        static void error_overflow()
-        {
-            throw std::overflow_error("Overflow");
-        }
-
-        float to_float() const
-        {
-            if (denominator == 0)
-            {
-                error_zero();
-            }
-            return static_cast<float>(numerator) / static_cast<float>(denominator);
-        }
+        static void reduce(int &numerator, int &denominator);
+        static void error_zero();
+        static void error_invalid();
+        static void error_overflow();
+        float to_float() const;
     };
 }
 

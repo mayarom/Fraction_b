@@ -1,18 +1,10 @@
 #include "Fraction.hpp"
-#include <iostream>
-#include <string>
-#include <unistd.h>
-#include <math.h>
-#include <stdexcept>
-#include <limits>
-#include <algorithm>
-#include <chrono>
 
 using namespace ariel;
 
 // MAXINT and MININT are used for overflow error handling
-int MAXINT = std::numeric_limits<int>::max();
-int MININT = std::numeric_limits<int>::min();
+const int MAXINT = std::numeric_limits<int>::max();
+const int MININT = std::numeric_limits<int>::min();
 
 // log function for debugging - prints the message to the console
 void Fraction::log(const std::string &message)
@@ -54,8 +46,10 @@ Fraction::Fraction(int input_numerator, int input_denominator)
  */
 Fraction::Fraction(double value)
 {
-    // error handling for overflow
-    if (value > MAXINT || value < MININT)
+    // error handling for overflowint MAXINT = std::numeric_limits<int>::max();
+    int MININT = std::numeric_limits<int>::min();
+
+    if (value > static_cast<float>(MAXINT) || value < static_cast<float>(MININT))
     {
         throw std::overflow_error("Overflow");
     }
@@ -73,7 +67,8 @@ Fraction::Fraction(double value)
 Fraction::Fraction(float value)
 {
     // error handling for overflow
-    if (value > MAXINT || value < MININT)
+    if (value > static_cast<float>(MAXINT) || value < static_cast<float>(MININT))
+
     {
         throw std::overflow_error("Overflow");
     }
@@ -248,36 +243,50 @@ const Fraction Fraction::operator++(int)
     return cpy;
 };
 
-// Operators for subtraction (-)
-
+/**
+ * @brief Operator overload for subtraction of another fraction from this fraction.
+ *
+ * @param other The other fraction to subtract from this fraction.
+ * @return A new Fraction object that is the result of the subtraction.
+ */
 Fraction Fraction::operator-(const Fraction &other) const
 {
+    // Check if subtracting the fraction from itself
     if (this == &other)
     {
-
         return *this;
     }
+
+    // Perform subtraction of the fractions using long long int to handle potential overflow
     long long int num = static_cast<long long int>(numerator) * static_cast<long long int>(other.denominator) -
                         static_cast<long long int>(other.numerator) * static_cast<long long int>(denominator);
 
     long long int denom = static_cast<long long int>(denominator) * static_cast<long long int>(other.denominator);
 
+    // Check for overflow after subtraction
     if (num > MAXINT || num < MININT || denom > MAXINT || denom < MININT)
     {
         throw std::overflow_error("Overflow error");
     }
 
     return Fraction(num, denom);
-};
+}
 
+/**
+ * @brief Operator overload for subtraction of a float from this fraction.
+ *
+ * @param other The float to subtract from this fraction.
+ * @return A new Fraction object that is the result of the subtraction.
+ */
 Fraction Fraction::operator-(float other)
 {
+    // Convert this fraction to a float and perform subtraction
     float tmp = to_float();
     tmp = round(tmp * FACTOR) / FACTOR;
     float tmp2 = round(other * FACTOR) / FACTOR;
     float tmp3 = round((tmp - tmp2) * FACTOR) / FACTOR;
     return Fraction(tmp3);
-};
+}
 
 /**
  * @brief Operator overload for in-place subtraction of another fraction from this fraction.
@@ -641,3 +650,118 @@ void Fraction::print_message(std::string message)
     std::cout << message << std::endl;
 }
 
+// Getters
+int ariel::Fraction::getNumerator() const
+{
+    if (denominator == 0)
+    {
+        error_zero();
+    }
+    return numerator;
+}
+
+int ariel::Fraction::getDenominator() const
+{
+    if (denominator == 0)
+    {
+        error_zero();
+    }
+    return denominator;
+}
+
+// To double
+double ariel::Fraction::to_double() const
+{
+    if (denominator == 0)
+    {
+        error_zero();
+    }
+    return static_cast<double>(numerator) / static_cast<double>(denominator);
+}
+
+// To int
+int ariel::Fraction::to_int() const
+{
+    if (denominator == 0)
+    {
+        error_zero();
+    }
+    return numerator / denominator;
+}
+
+// Other methods
+
+/**
+ * @brief Reduces the numerator and denominator of the fraction to their simplest form.
+ *
+ * @param numerator The numerator of the fraction to reduce.
+ * @param denominator The denominator of the fraction to reduce.
+ *
+ * @throws std::runtime_error if the denominator is zero.
+ */
+void Fraction::reduce(int &numerator, int &denominator)
+{
+    if (denominator == 0)
+    {
+        error_zero();
+    }
+
+    // Check if the numerator or denominator is negative
+    bool nflag = numerator < 0;
+    bool dflag = denominator < 0;
+
+    // Make both numerator and denominator positive for simplification
+    numerator *= (nflag) ? -1 : 1;
+    denominator *= (dflag) ? -1 : 1;
+
+    // Calculate the greatest common divisor (GCD) using std::__gcd
+    int gcd = std::__gcd(numerator, denominator);
+
+    // Divide both numerator and denominator by their GCD
+    numerator /= gcd;
+    denominator /= gcd;
+
+    // Restore the original signs if necessary
+    numerator *= (nflag) ? -1 : 1;
+    denominator *= (dflag) ? -1 : 1;
+}
+
+/**
+ * @brief Throws a runtime_error with the message "Can't divide by zero".
+ */
+void Fraction::error_zero()
+{
+    throw std::runtime_error("Can't divide by zero");
+}
+
+/**
+ * @brief Throws a runtime_error with the message "Invalid input".
+ */
+void Fraction::error_invalid()
+{
+    throw std::runtime_error("Invalid input");
+}
+
+/**
+ * @brief Throws an overflow_error with the message "Overflow".
+ */
+void Fraction::error_overflow()
+{
+    throw std::overflow_error("Overflow");
+}
+
+/**
+ * @brief Converts the fraction to a float value.
+ *
+ * @return The float representation of the fraction.
+ *
+ * @throws std::runtime_error if the denominator is zero.
+ */
+float Fraction::to_float() const
+{
+    if (denominator == 0)
+    {
+        error_zero();
+    }
+    return static_cast<float>(numerator) / static_cast<float>(denominator);
+}
