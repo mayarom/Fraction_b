@@ -1,3 +1,15 @@
+/**
+ * @file Fraction.cpp
+ * @brief Implementation file for the Fraction class.
+ *
+ * This file was written by Maya Rom, ID: 207485251. It contains the implementation of the Fraction class,
+ * which represents a fraction with numerator and denominator. It provides various arithmetic and comparison
+ * operations, as well as conversion functions to float and integer values. The class handles error cases
+ * such as division by zero, overflow, and invalid input, and provides appropriate exception handling. The
+ * Fraction class is designed to be used for precise fractional calculations and provides methods for
+ * simplifying fractions to their simplest form.
+ */
+
 #include "Fraction.hpp"
 
 using namespace ariel;
@@ -26,15 +38,24 @@ Fraction::Fraction(int input_numerator, int input_denominator)
 {
     if (input_denominator == 0)
     {
+        // Throw an exception if the denominator is zero
         throw std::invalid_argument("Denominator can't be zero");
     }
-    // error handling for overflow
+
+    // Error handling for overflow
     if (input_numerator > MAXINT || input_numerator < MININT || input_denominator > MAXINT || input_denominator < MININT)
     {
+        // Throw an exception if overflow occurs
         throw std::overflow_error("Overflow");
     }
+
+    // Log a message indicating the creation of a fraction from integer numerator and denominator
     log("Creating fraction from int numerator and denominator");
+
+    // Reduce the fraction to its simplest form
     reduce(input_numerator, input_denominator);
+
+    // Assign the numerator and denominator to the object's member variables
     numerator = input_numerator;
     denominator = input_denominator;
 }
@@ -46,18 +67,26 @@ Fraction::Fraction(int input_numerator, int input_denominator)
  */
 Fraction::Fraction(double value)
 {
-    // error handling for overflowint MAXINT = std::numeric_limits<int>::max();
+    // Error handling for overflow
+    int MAXINT = std::numeric_limits<int>::max();
     int MININT = std::numeric_limits<int>::min();
 
     if (value > static_cast<float>(MAXINT) || value < static_cast<float>(MININT))
     {
+        // Throw an exception if overflow occurs
         throw std::overflow_error("Overflow");
     }
+
+    // Log a message indicating the creation of a fraction from a double value
     log("Creating fraction from double value");
+
+    // Convert the double value to a fraction by multiplying it by a suitable factor
     numerator = value * FACTOR;
     denominator = FACTOR;
+
+    // Reduce the fraction to its simplest form
     reduce(numerator, denominator);
-};
+}
 
 /**
  * @brief Constructs a new Fraction object from a float value.
@@ -65,18 +94,28 @@ Fraction::Fraction(double value)
  * @param value The value to convert to a fraction.
  */
 Fraction::Fraction(float value)
+    : is_negative(false) // Initialize is_negative to false
 {
-    // error handling for overflow
-    if (value > static_cast<float>(MAXINT) || value < static_cast<float>(MININT))
+    // Error handling for overflow
+    int MAXINT = std::numeric_limits<int>::max();
+    int MININT = std::numeric_limits<int>::min();
 
+    if (value > static_cast<float>(MAXINT) || value < static_cast<float>(MININT))
     {
+        // Throw an exception if overflow occurs
         throw std::overflow_error("Overflow");
     }
+
+    // Log a message indicating the creation of a fraction from a float value
     log("Creating fraction from float value");
+
+    // Convert the float value to a fraction by multiplying it by a suitable factor
     numerator = value * FACTOR;
     denominator = FACTOR;
+
+    // Reduce the fraction to its simplest form
     reduce(numerator, denominator);
-};
+}
 
 /**
  * @brief Copy constructor for Fraction objects.
@@ -85,19 +124,29 @@ Fraction::Fraction(float value)
  */
 Fraction::Fraction(const Fraction &other)
 {
+    // Check if the object is being copied to itself
     if (this == &other)
     {
-        return;
+        return; // No need to perform the copy
     }
-    // error handling for overflow
+
+    // Error handling for overflow
+    int MAXINT = std::numeric_limits<int>::max();
+    int MININT = std::numeric_limits<int>::min();
+
     if (other.getNumerator() > MAXINT || other.getNumerator() < MININT || other.getDenominator() > MAXINT || other.getDenominator() < MININT)
     {
+        // Throw an exception if overflow occurs
         throw std::overflow_error("Overflow");
     }
+
+    // Log a message indicating the creation of a fraction from the copy constructor
     log("Creating fraction from copy constructor");
+
+    // Copy the numerator and denominator from the other Fraction object
     numerator = other.getNumerator();
     denominator = other.getDenominator();
-};
+}
 
 /**
  * @brief Default constructor for Fraction objects.
@@ -128,120 +177,178 @@ Fraction::Fraction()
  */
 Fraction::Fraction(Fraction &&other) noexcept
 {
-
+    // Log a message indicating the creation of a fraction from the move constructor
     log("Creating fraction from move constructor");
+
+    // Move the numerator and denominator from the other Fraction object
     numerator = other.getNumerator();
     denominator = other.getDenominator();
-};
+}
 
 // Operators for equality (=)
-
 Fraction &Fraction::operator=(Fraction &&other) noexcept
 {
+    // Check if the object is being move-assigned to itself
     if (this == &other)
     {
         log("Move assignment operator called on itself");
         return *this;
     }
+
+    // Move the numerator and denominator from the other Fraction object
     numerator = other.getNumerator();
     denominator = other.getDenominator();
+
+    // Log a message indicating the move assignment operator has been called
     log("Move assignment operator called");
+
     return *this;
-};
+}
 
 Fraction &Fraction::operator=(const Fraction &other)
 {
+    // Check if the object is being copy-assigned to itself
     if (this == &other)
     {
         log("Copy assignment operator called on itself");
         return *this;
     }
-    // error handling for overflow
+
+    // Error handling for overflow
+    int MAXINT = std::numeric_limits<int>::max();
+    int MININT = std::numeric_limits<int>::min();
+
     if (other.getNumerator() > MAXINT || other.getNumerator() < MININT || other.getDenominator() > MAXINT || other.getDenominator() < MININT)
     {
+        // Throw an exception if overflow occurs
         throw std::overflow_error("Overflow");
     }
+
+    // Log a message indicating the copy assignment operator has been called
     log("Copy assignment operator called");
+
+    // Copy the numerator and denominator from the other Fraction object
     numerator = other.getNumerator();
     denominator = other.getDenominator();
+
     return *this;
-};
+}
 
 Fraction &Fraction::operator=(float other)
 {
+    // Create a temporary Fraction object from the float value
     Fraction tmp = Fraction(other);
+
+    // Assign the numerator and denominator from the temporary Fraction object
     numerator = tmp.getNumerator();
     denominator = tmp.getDenominator();
-    // error handling for overflow
+
+    // Error handling for overflow
+    int MAXINT = std::numeric_limits<int>::max();
+    int MININT = std::numeric_limits<int>::min();
+
     if (numerator > MAXINT || numerator < MININT || denominator > MAXINT || denominator < MININT)
     {
+        // Log an overflow error and throw an exception
         log("Overflow error");
         throw std::overflow_error("Overflow");
     }
+
     return *this;
-};
+}
 
 // Operators for addition (+)
 Fraction Fraction::operator+(const Fraction &other) const
 {
-
+    // Perform the addition using long long integers to avoid overflow
     long long int num = static_cast<long long int>(numerator) * static_cast<long long int>(other.denominator) +
                         static_cast<long long int>(other.numerator) * static_cast<long long int>(denominator);
 
     long long int denom = static_cast<long long int>(denominator) * static_cast<long long int>(other.denominator);
 
+    // Error handling for overflow
+    int MAXINT = std::numeric_limits<int>::max();
+    int MININT = std::numeric_limits<int>::min();
+
     if (num > MAXINT || num < MININT || denom > MAXINT || denom < MININT)
     {
+        // Call an error handling function for overflow
         error_overflow();
     }
 
+    // Create and return a new Fraction object representing the sum
     return Fraction(num, denom);
-};
+}
 
 Fraction Fraction::operator+(float other)
 {
+    // Convert the Fraction object to a float value
     float tmp = to_float();
+
+    // Round the float values to the desired precision
     tmp = round(tmp * FACTOR) / FACTOR;
     float tmp2 = round(other * FACTOR) / FACTOR;
     float tmp3 = round((tmp + tmp2) * FACTOR) / FACTOR;
+
+    // Log a message indicating the addition operator has been called
     log("Addition operator called");
+
+    // Create and return a new Fraction object representing the sum
     return Fraction(tmp3);
 }
 
 Fraction Fraction::operator+=(const Fraction &other)
 {
+    // Check if the object is being added to itself
     if (this == &other)
     {
         log("Addition assignment operator called on itself");
         return *this;
     }
+
+    // Use the addition operator to perform the addition
     *this = *this + other;
+
     return *this;
-};
+}
 
 Fraction Fraction::operator+=(float other)
 {
-
+    // Log a message indicating the addition assignment operator has been called
     log("Addition assignment operator called");
+
+    // Use the addition operator to perform the addition
     *this = *this + other;
+
     return *this;
-};
+}
 
 Fraction &Fraction::operator++()
 {
+    // Increment the Fraction object by adding the denominator to the numerator
     numerator += denominator;
+
+    // Reduce the fraction to its simplest form
     reduce(numerator, denominator);
+
+    // Return a reference to the modified Fraction object
     return *this;
-};
+}
 
 const Fraction Fraction::operator++(int)
 {
-
+    // Create a copy of the Fraction object
     Fraction cpy(*this);
+
+    // Increment the Fraction object by adding the denominator to the numerator
     numerator += denominator;
+
+    // Reduce the fraction to its simplest form
     reduce(numerator, denominator);
+
+    // Return the original copy of the Fraction object
     return cpy;
-};
+}
 
 /**
  * @brief Operator overload for subtraction of another fraction from this fraction.
@@ -395,88 +502,162 @@ Fraction Fraction::operator*=(float other)
 }
 
 // ********** Operators for division (/) **********
+
+/**
+ * @brief Operator overload for division of two fractions.
+ *
+ * @param other The other fraction to divide by.
+ * @return The result of dividing the fractions.
+ */
 Fraction Fraction::operator/(const Fraction &other) const
 {
+    // Error handling for zero numerator in the other fraction
     if (other.getNumerator() == 0)
     {
         error_zero();
     }
 
+    // Perform the division using long long integers to avoid overflow
     long long int num = static_cast<long long int>(numerator) * static_cast<long long int>(other.getDenominator());
     long long int denom = static_cast<long long int>(denominator) * static_cast<long long int>(other.getNumerator());
 
+    // Error handling for overflow
     if (num > MAXINT || num < MININT || denom > MAXINT || denom < MININT)
     {
-
         error_overflow();
     }
 
+    // Create and return a new Fraction object representing the division result
     return Fraction(num, denom);
-};
+}
 
+/**
+ * @brief Operator overload for division of a fraction by a float.
+ *
+ * @param other The float to divide by.
+ * @return The result of dividing the fraction by the float.
+ */
 Fraction Fraction::operator/(float other)
 {
+    // Error handling for zero denominator
     if (other == 0)
     {
         error_zero();
     }
+
+    // Convert the fraction to a float value
     float tmp = to_float();
+
+    // Perform the division with rounded precision
     float tmp2 = round(other * FACTOR) / FACTOR;
     float tmp3 = round((tmp / tmp2) * FACTOR) / FACTOR;
-    return Fraction(tmp3);
-};
 
+    // Create and return a new Fraction object representing the division result
+    return Fraction(tmp3);
+}
+
+/**
+ * @brief Operator overload for in-place division of a fraction by another fraction.
+ *
+ * @param other The other fraction to divide by.
+ * @return Reference to the modified fraction after division.
+ */
 Fraction Fraction::operator/=(const Fraction &other)
 {
+    // Error handling for zero numerator in the other fraction
     if (other.getNumerator() == 0)
     {
         error_zero();
     }
-    *this = *this / other;
-    return *this;
-};
 
+    // Use the division operator to perform the division
+    *this = *this / other;
+
+    return *this;
+}
+
+/**
+ * @brief Operator overload for in-place division of a fraction by a float.
+ *
+ * @param other The float to divide by.
+ * @return Reference to the modified fraction after division.
+ */
 Fraction Fraction::operator/=(float other)
 {
+    // Error handling for zero denominator
     if (other == 0)
     {
         error_zero();
     }
+
+    // Use the division operator to perform the division
     *this = *this / other;
+
     return *this;
-};
+}
 
 // ********** Operators for equality-checking (==, !=) **********
+
+/**
+ * @brief Operator overload for equality comparison of two fractions.
+ *
+ * @param other The other fraction to compare to.
+ * @return true if the two fractions are equal, false otherwise.
+ */
 bool Fraction::operator==(const Fraction &other) const
 {
+    // Convert both fractions to float values
     float val = to_float();
     float otherVal = other.to_float();
-    return round(val * FACTOR) / FACTOR == round(otherVal * FACTOR) / FACTOR;
-};
 
+    // Compare the float values with rounded precision and return the result
+    return round(val * FACTOR) / FACTOR == round(otherVal * FACTOR) / FACTOR;
+}
+
+/**
+ * @brief Operator overload for equality comparison of a fraction and a float.
+ *
+ * @param other The float to compare to.
+ * @return true if the fraction is equal to the float, false otherwise.
+ */
 bool Fraction::operator==(float other)
 {
+    // Convert the fraction to a float value
     float val = to_float();
-    return round(val * FACTOR) / FACTOR == round(other * FACTOR) / FACTOR;
-};
 
+    // Compare the float value with the given value with rounded precision and return the result
+    return round(val * FACTOR) / FACTOR == round(other * FACTOR) / FACTOR;
+}
+
+/**
+ * @brief Operator overload for inequality comparison of two fractions.
+ *
+ * @param other The other fraction to compare to.
+ * @return true if the two fractions are not equal, false otherwise.
+ */
 bool Fraction::operator!=(const Fraction &other) const
 {
+    // Error handling for zero numerator in the other fraction
     if (other.getNumerator() == 0)
     {
         error_zero();
     }
+
+    // Check if the fraction is not equal to the other fraction
     return !(*this == other);
-};
+}
 
 bool Fraction::operator!=(float other)
 {
+    // Error handling for zero denominator
     if (other == 0)
     {
         error_zero();
     }
+
+    // Check if the fraction is not equal to the given float value
     return !(*this == other);
-};
+}
 
 /**
  * @brief Operator overload for comparison of two fractions.
@@ -486,17 +667,17 @@ bool Fraction::operator!=(float other)
  */
 bool Fraction::operator>(const Fraction &other) const
 {
+    // Error handling for zero numerator in the other fraction
     if (other.getNumerator() == 0)
     {
         error_zero();
     }
-    float val = to_float();
-    if (val == 0)
-    {
-        return false;
-    }
 
+    // Convert both fractions to float values
+    float val = to_float();
     float otherVal = other.to_float();
+
+    // Compare the float values and return the result
     return (val > otherVal);
 }
 
@@ -508,11 +689,16 @@ bool Fraction::operator>(const Fraction &other) const
  */
 bool Fraction::operator>(float other)
 {
+    // Error handling for zero denominator
     if (other == 0)
     {
         error_zero();
     }
+
+    // Convert the fraction to a float value
     float val = to_float();
+
+    // Compare the float value with the given value and return the result
     return (val > other);
 }
 
@@ -524,8 +710,11 @@ bool Fraction::operator>(float other)
  */
 bool Fraction::operator<(const Fraction &other) const
 {
+    // Convert both fractions to float values
     float val = to_float();
     float otherVal = other.to_float();
+
+    // Compare the float values and return the result
     return (val < otherVal);
 }
 
@@ -537,7 +726,10 @@ bool Fraction::operator<(const Fraction &other) const
  */
 bool Fraction::operator<(float other)
 {
+    // Convert the fraction to a float value
     float val = to_float();
+
+    // Compare the float value with the given value and return the result
     return (val < other);
 }
 
@@ -549,8 +741,11 @@ bool Fraction::operator<(float other)
  */
 bool Fraction::operator>=(const Fraction &other) const
 {
+    // Convert both fractions to float values
     float val = to_float();
     float otherVal = other.to_float();
+
+    // Compare the float values and return the result
     return (val >= otherVal);
 }
 
@@ -562,12 +757,16 @@ bool Fraction::operator>=(const Fraction &other) const
  */
 bool Fraction::operator>=(float other)
 {
+    // Error handling for zero denominator
     if (denominator == 0)
     {
         error_zero();
     }
 
+    // Convert the fraction to a float value
     float val = to_float();
+
+    // Compare the float value with the given value and return the result
     return (val >= other);
 }
 
@@ -579,30 +778,39 @@ bool Fraction::operator>=(float other)
  */
 bool Fraction::operator<=(const Fraction &other) const
 {
+    // Error handling for zero denominators in both fractions
     if (denominator == 0 || other.denominator == 0)
     {
         error_zero();
     }
 
+    // Convert both fractions to float values
     float val = to_float();
     float otherVal = other.to_float();
+
+    // Compare the float values and return the result
     return (val <= otherVal);
 }
 
 /**
- * @brief Operator overload for comparison of a fraction and a float.
+ * Check if the fraction is less than or equal to a given float value.
  *
- * @param other The float to compare to.
- * @return true if this fraction is less than or equal to the float, false otherwise.
+ * @param other The float value to compare with.
+ * @return True if the fraction is less than or equal to the given float value, false otherwise.
+ * @throws ZeroDenominatorError if the denominator is zero.
  */
 bool Fraction::operator<=(float other)
 {
+    // Error handling for zero denominator
     if (denominator == 0)
     {
         error_zero();
     }
 
+    // Convert the fraction to a float value
     float val = to_float();
+
+    // Compare the float value with the given value and return the result
     return (val <= other);
 }
 
@@ -651,8 +859,15 @@ void Fraction::print_message(std::string message)
 }
 
 // Getters
+/**
+ * Get the numerator of the fraction.
+ *
+ * @return The numerator of the fraction.
+ * @throws ZeroDenominatorError if the denominator is zero.
+ */
 int ariel::Fraction::getNumerator() const
 {
+    // Error handling for zero denominator
     if (denominator == 0)
     {
         error_zero();
@@ -660,8 +875,15 @@ int ariel::Fraction::getNumerator() const
     return numerator;
 }
 
+/**
+ * Get the denominator of the fraction.
+ *
+ * @return The denominator of the fraction.
+ * @throws ZeroDenominatorError if the denominator is zero.
+ */
 int ariel::Fraction::getDenominator() const
 {
+    // Error handling for zero denominator
     if (denominator == 0)
     {
         error_zero();
@@ -670,8 +892,15 @@ int ariel::Fraction::getDenominator() const
 }
 
 // To double
+/**
+ * Convert the fraction to a double value.
+ *
+ * @return The fraction as a double value.
+ * @throws ZeroDenominatorError if the denominator is zero.
+ */
 double ariel::Fraction::to_double() const
 {
+    // Error handling for zero denominator
     if (denominator == 0)
     {
         error_zero();
@@ -679,9 +908,15 @@ double ariel::Fraction::to_double() const
     return static_cast<double>(numerator) / static_cast<double>(denominator);
 }
 
-// To int
+/**
+ * Convert the fraction to an integer value.
+ *
+ * @return The fraction as an integer value.
+ * @throws ZeroDenominatorError if the denominator is zero.
+ */
 int ariel::Fraction::to_int() const
 {
+    // Error handling for zero denominator
     if (denominator == 0)
     {
         error_zero();

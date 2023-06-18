@@ -52,7 +52,7 @@ int main() {
     printFraction(f2);
     cout << "--------------------------------------" << endl;
 
-    animateLoading(); // Add a magical loading animation
+    animateLoading(); // Add a loading animation
 
     printResult("Sum", sum);
     printResult("Difference", difference);
